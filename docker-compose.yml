@@ -6,7 +6,7 @@ services:
     command: gunicorn ai_intrusion_detector.wsgi:application --bind 0.0.0.0:9000
     volumes:
       - .:/app
-    expose:
+    expose: #change port to 9000
       - "9000"
     # Remove depends_on to avoid circular dependency
 
