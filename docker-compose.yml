@@ -3,23 +3,23 @@ version: '3.8'
 services:
   web:
     build: .
-    command: gunicorn ai_intrusion_detector.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn ai_intrusion_detector.wsgi:application --bind 0.0.0.0:9000
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - nginx
+    expose:
+      - "9000"
+    # Remove depends_on to avoid circular dependency
 
   nginx:
     image: nginx:latest
     ports:
-      - "80:80"
+      - "90:80"  # Expose port 90 on host, map to port 80 in container
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./static:/static
     depends_on:
-      - web
+      - web  # Nginx depends on web
+
 
 
 
