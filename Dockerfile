@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 
 # Expose the port and run the app
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project_name.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ai_intrusion_detector.wsgi:application"]
