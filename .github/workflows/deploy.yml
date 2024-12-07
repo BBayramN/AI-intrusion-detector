@@ -41,5 +41,5 @@ jobs:
         port: 22
         script: |
           cd ~/django-app
-          docker-compose down
-          docker-compose up -d --build
+          docker compose down
+          docker compose up -d --build

@@ -1,27 +1,17 @@
-# For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3-slim
+# Base image
+FROM python:3.10-slim
 
-EXPOSE 8000
+# Set the working directory
+WORKDIR /app
 
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED=1
-
-# Install pip requirements
+# Copy the requirements file
 COPY requirements.txt /app/
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
-COPY . /app
+# Copy the rest of the application code
+COPY . /app/
 
-
-RUN python manage.py collectstatic --noinput
-# # Creates a non-root user with an explicit UID and adds permission to access the /app folder
-# # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-# RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-# USER appuser
-
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ai_intrusion_detector.wsgi"]
+# Expose the port and run the app
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project_name.wsgi:application"]
