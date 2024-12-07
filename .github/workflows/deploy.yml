@@ -23,7 +23,7 @@ jobs:
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           script: |
             cd ~/django-app
-            ls -l
+            
 
       # Step 4: Start the application
       - name: Start Application
@@ -33,5 +33,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           script: |
-            docker compose down
-            docker compose up -d --build
+            cd ~/django-app
+            docker compose -f docker-compose.yml down
+            docker compose -f docker-compose.yml up -d --build
