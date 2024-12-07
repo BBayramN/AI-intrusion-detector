@@ -16,7 +16,7 @@ jobs:
 
       # Step 2: Transfer files to server
       - name: Deploy Files to Server
-        uses: appleboy/scp-action@v0.1.10
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
@@ -26,7 +26,7 @@ jobs:
 
       # Step 3: Prepare the server and run Docker Compose
       - name: Deploy App
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
