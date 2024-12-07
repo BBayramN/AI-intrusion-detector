@@ -7,7 +7,7 @@ def hello(request):
     if request.method == "POST":
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(request.META)
-    return HttpResponse("Hello, world...")
+    return HttpResponse("Hello, worldaaaaaa...")
 
 
 import pickle
