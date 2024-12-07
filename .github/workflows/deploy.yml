@@ -1,0 +1,45 @@
+name: Django Deployment to Ubuntu Server
+
+on:
+  push:
+    branches:
+      - main  # Run this workflow only on pushes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # Step 4: Build Docker image
+    - name: Build and push Docker image
+      run: |
+        docker build -t django-app:latest .
+
+    # Step 5: Deploy to Ubuntu server
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_PRIVATE_KEY }}
+        port: 22
+        script: |
+          cd ~/django-app
+          docker-compose down
+          docker-compose up -d --build

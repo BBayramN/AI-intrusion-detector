@@ -24,4 +24,4 @@ RUN python manage.py collectstatic --noinput
 # USER appuser
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["gunicorn", "--bind", "0.0.0.0:9000", "ai_intrusion_detector.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ai_intrusion_detector.wsgi"]
