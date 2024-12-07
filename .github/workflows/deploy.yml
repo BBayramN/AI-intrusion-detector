@@ -40,9 +40,6 @@ jobs:
         key: ${{ secrets.SERVER_PRIVATE_KEY }}
         port: 22
         script: |
-          mkdir -p ~/django-app
           cd ~/django-app
-          rm -rf *
-          tar -xzvf /tmp/django-app.tar.gz
           docker compose down
           docker compose up -d --build

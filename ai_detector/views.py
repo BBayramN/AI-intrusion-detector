@@ -35,4 +35,4 @@ def test_request(request):
 #         # Step 4: Return response
 #         if prediction[0] == 1:  # Assuming 1 = Attack, 0 = Normal
 #             return JsonResponse({'message': 'Attack detected!'}, status=403)
-    return JsonResponse({'message': 'Normal request'})
+    return HttpResponse("aaa")
