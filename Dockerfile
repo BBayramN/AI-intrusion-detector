@@ -1,7 +1,10 @@
 # Base image
 FROM python:3.10-slim
 
-RUN apt-get update && apt-get install -y tshark
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    tshark \
+    && apt-get clean
 
 # Set the working directory
 WORKDIR /app

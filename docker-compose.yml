@@ -6,6 +6,12 @@ services:
       context: .
     ports:
       - "8000:8000"
+    cnetwork_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - .:/web
     # environment:
     #   - DJANGO_SETTINGS_MODULE=project_name.settings
     #   - POSTGRES_DB=${POSTGRES_DB}
