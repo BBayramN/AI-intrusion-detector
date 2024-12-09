@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build:
@@ -11,4 +9,4 @@ services:
       - NET_ADMIN
       - NET_RAW
     volumes:
-      - .:/web
+      - /home/deployuser/data:/app/  # Mount host directory to container directory
