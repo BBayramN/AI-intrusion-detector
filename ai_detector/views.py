@@ -17,7 +17,7 @@ def capture_traffic(request):
     #         "Packet Length": "1500"
     #     })
 
-    output_file = '/app/flow_data.csv'
+    output_file = '/app/data/flow_data.csv'
     fieldnames = ["Source IP", "Destination IP", "Source Port", "Destination Port", "Timestamp", "Packet Length"]
 
     # Initialize CSV if it doesn't exist
