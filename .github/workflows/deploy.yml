@@ -22,8 +22,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           script: |
-            if [ ! -d "~/django-app" ]; then
-              mkdir ~/django-app
+            if [ ! -d "/home/${{ secrets.SERVER_USER }}/django-app" ]; then
+              mkdir /home/${{ secrets.SERVER_USER }}/django-app
             fi
 
       # Step 3: Transfer files to server
