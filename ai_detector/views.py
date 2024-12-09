@@ -130,22 +130,9 @@ def capture_traffic(request):
 # with open('webattack_detection_rf_model.pkl', 'rb') as model_file:
 #     ai_model = pickle.load(model_file)
 # @csrf_exempt
-def test_request(request):
-#     """Test request against the trained model."""
-#     # Step 1: Extract features
-    
-#     if request.method == "POST":
 
-#         raw_features = extract_model_features(request)
+from django.shortcuts import redirect
 
-#         # Step 2: Preprocess features
-#         processed_features = preprocess_features(raw_features)
-
-#         # Step 3: Predict using the model
-#         prediction = ai_model.predict([processed_features])  # Ensure input is a 2D array
-
-#         # Step 4: Return response
-#         if prediction[0] == 1:  # Assuming 1 = Attack, 0 = Normal
-#             return JsonResponse({'message': 'Attack detected!'}, status=403)
-    return HttpResponse("aaa")
+def home(request):
+    return redirect('capture_traffic')
 
