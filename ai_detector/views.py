@@ -4,6 +4,19 @@ import csv
 import os
 
 def capture_traffic(request):
+
+    # Test file writing
+    with open(output_file, mode='a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writerow({
+            "Source IP": "192.168.1.1",
+            "Destination IP": "192.168.1.2",
+            "Source Port": "5000",
+            "Destination Port": "443",
+            "Timestamp": "1696484737.123456",
+            "Packet Length": "1500"
+        })
+
     output_file = 'flow_data.csv'
     fieldnames = ["Source IP", "Destination IP", "Source Port", "Destination Port", "Timestamp", "Packet Length"]
 
