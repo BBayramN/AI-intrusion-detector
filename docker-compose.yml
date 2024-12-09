@@ -9,4 +9,4 @@ services:
       - NET_ADMIN
       - NET_RAW
     volumes:
-      - /home/deployuser/data:/app/  # Mount host directory to container directory
+      - /home/deployuser/data:/app/data/  # Mount host directory to container directory
