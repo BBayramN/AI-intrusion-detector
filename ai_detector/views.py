@@ -26,7 +26,7 @@ def capture_traffic(request):
 
     try:
         # Initialize PyShark to capture packets on the primary interface
-        capture = pyshark.LiveCapture(interface='eth0')  # Replace 'eth0' with your active network interface
+        capture = pyshark.LiveCapture(interface='lo')  # Replace 'eth0' with your active network interface
 
         # Capture up to 100 packets (adjust count as needed)
         flows = {}
