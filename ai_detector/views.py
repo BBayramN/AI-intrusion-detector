@@ -26,11 +26,11 @@ def capture_traffic(request):
 
     try:
         # Initialize PyShark to capture packets on the primary interface
-        capture = pyshark.LiveCapture(interface='eth')  # Replace 'eth0' with your active network interface
+        capture = pyshark.LiveCapture(interface='eth0')  # Replace 'eth0' with your active network interface
 
         # Capture up to 100 packets (adjust count as needed)
         flows = {}
-        for packet in capture.sniff_continuously(packet_count=100):
+        for packet in capture.sniff_continuously(packet_count=5):
             try:
                 # Extract flow key
                 src_ip = packet.ip.src
