@@ -25,6 +25,11 @@ def capture_model_features(output_file='model_input_data.csv'):
         "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
     ]
 
+    for feature in features:
+        if len(feature) != len(fieldnames):
+            print(f"Row length mismatch: {feature}")
+
+
     # Initialize CSV file
     if not os.path.exists(output_file):
         with open(output_file, mode='w', newline='') as f:
@@ -116,8 +121,9 @@ def capture_model_features(output_file='model_input_data.csv'):
         })
 
     # Write features to CSV
+    # Open the file in append mode with quoting enabled
     with open(output_file, mode='a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, quoting=csv.QUOTE_MINIMAL)
         writer.writerows(features)
 
     print(f"Captured {len(features)} flows written to {output_file}")
