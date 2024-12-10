@@ -38,7 +38,7 @@ def capture_model_features(output_file='model_input_data.csv'):
     capture = pyshark.LiveCapture(interface='eth0')
     flows = {}
 
-    for packet in capture.sniff_continuously(packet_count=500):  # Adjust packet_count as needed
+    for packet in capture.sniff_continuously(packet_count=300):  # Adjust packet_count as needed
         try:
             src_ip = getattr(packet.ip, 'src', None)
             dst_ip = getattr(packet.ip, 'dst', None)
@@ -121,7 +121,7 @@ def capture_model_features(output_file='model_input_data.csv'):
     for feature in features:
         if len(feature) != len(fieldnames):
             print(f"Row length mismatch: {feature}")
-            
+
     # Write features to CSV
     # Open the file in append mode with quoting enabled
     with open(output_file, mode='a', newline='') as f:

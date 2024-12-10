@@ -20,4 +20,5 @@ COPY . /app/
 
 
 # Expose the port and run the app
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ai_intrusion_detector.wsgi:application"]
+CMD ["gunicorn", "ai_intrusion_detector.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "4"]
+
