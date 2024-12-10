@@ -25,9 +25,7 @@ def capture_model_features(output_file='model_input_data.csv'):
         "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
     ]
 
-    for feature in features:
-        if len(feature) != len(fieldnames):
-            print(f"Row length mismatch: {feature}")
+
 
 
     # Initialize CSV file
@@ -120,6 +118,10 @@ def capture_model_features(output_file='model_input_data.csv'):
             # Add other features as needed
         })
 
+    for feature in features:
+        if len(feature) != len(fieldnames):
+            print(f"Row length mismatch: {feature}")
+            
     # Write features to CSV
     # Open the file in append mode with quoting enabled
     with open(output_file, mode='a', newline='') as f:
