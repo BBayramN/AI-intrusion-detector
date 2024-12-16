@@ -1,10 +1,9 @@
 import pyshark
 import csv
 import os
-from statistics import mean, stdev
 from django.conf import settings
 
-# Define feature names
+# Define feature names (your model columns)
 FIELDNAMES = [
     "Destination Port", "Flow Duration", "Total Fwd Packets", "Total Backward Packets",
     "Total Length of Fwd Packets", "Total Length of Bwd Packets",
@@ -25,7 +24,7 @@ FIELDNAMES = [
     "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
 ]
 
-def capture_model_features(output_file="captured_traffic_features.csv", packet_count=100):
+def capture_raw_traffic(output_file="/app/data/captured_traffic_raw.csv", packet_count=100):
     output_path = os.path.join(settings.BASE_DIR, "data", output_file)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -51,66 +50,29 @@ def capture_model_features(output_file="captured_traffic_features.csv", packet_c
             flow_key = (src_ip, dst_ip, src_port, dst_port)
 
             if flow_key not in flows:
-                flows[flow_key] = {
-                    "timestamps": [],
-                    "fwd_lengths": [], "bwd_lengths": [],
-                    "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
-                    "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
-                }
+                flows[flow_key] = {"timestamps": [], "fwd_lengths": [], "bwd_lengths": []}
 
             flow = flows[flow_key]
             flow["timestamps"].append(timestamp)
 
-            # Packet direction
+            # Direction-based lengths
             if src_ip == flow_key[0]:
                 flow["fwd_lengths"].append(length)
             else:
                 flow["bwd_lengths"].append(length)
 
-            # Extract TCP Flags
-            if packet.transport_layer == "TCP":
-                flags = packet.tcp.flags_str
-                if "SYN" in flags: flow["syn_flags"] += 1
-                if "ACK" in flags: flow["ack_flags"] += 1
-                if "FIN" in flags: flow["fin_flags"] += 1
-                if "RST" in flags: flow["rst_flags"] += 1
-                if "PSH" in flags: flow["psh_flags"] += 1
-                if "URG" in flags: flow["urg_flags"] += 1
-                if "ECE" in flags: flow["ece_flags"] += 1
-
         except AttributeError:
             continue
 
-    # Process flows into features and write to CSV
+    # Write raw traffic data to CSV
     with open(output_path, mode="a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
-
         for flow_key, stats in flows.items():
-            iat = [stats["timestamps"][i] - stats["timestamps"][i - 1] for i in range(1, len(stats["timestamps"]))]
-
-            row = {
+            writer.writerow({
                 "Destination Port": flow_key[3],
-                "Flow Duration": sum(iat) if iat else None,
                 "Total Fwd Packets": len(stats["fwd_lengths"]),
                 "Total Backward Packets": len(stats["bwd_lengths"]),
                 "Total Length of Fwd Packets": sum(stats["fwd_lengths"]),
                 "Total Length of Bwd Packets": sum(stats["bwd_lengths"]),
-                "Fwd Packet Length Max": max(stats["fwd_lengths"], default=None),
-                "Fwd Packet Length Min": min(stats["fwd_lengths"], default=None),
-                "Fwd Packet Length Mean": mean(stats["fwd_lengths"]) if stats["fwd_lengths"] else None,
-                "Fwd Packet Length Std": stdev(stats["fwd_lengths"]) if len(stats["fwd_lengths"]) > 1 else None,
-                "SYN Flag Count": stats["syn_flags"],
-                "ACK Flag Count": stats["ack_flags"],
-                "FIN Flag Count": stats["fin_flags"],
-                "RST Flag Count": stats["rst_flags"],
-                "PSH Flag Count": stats["psh_flags"],
-                "URG Flag Count": stats["urg_flags"],
-                "ECE Flag Count": stats["ece_flags"],
-                "Flow IAT Mean": mean(iat) if iat else None,
-                "Flow IAT Std": stdev(iat) if len(iat) > 1 else None,
-                "Flow IAT Max": max(iat) if iat else None,
-                "Flow IAT Min": min(iat) if iat else None,
-            }
-
-            # Write row with only relevant data
-            writer.writerow(row)
+                # Leave other fields as None for later processing
+            })
