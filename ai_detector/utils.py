@@ -3,7 +3,7 @@ import csv
 import os
 from statistics import mean, stdev
 
-def capture_model_features(output_file='model_input_data.csv'):
+def capture_model_features(output_file = '/app/data/model_input_data.csv'):
     # Define the feature columns
     fieldnames = [
         "Destination Port", "Flow Duration", "Total Fwd Packets", "Total Backward Packets",
