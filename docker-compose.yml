@@ -14,8 +14,6 @@ services:
     depends_on:
       - redis
       - celery
-    environment:
-      - CELERY_BROKER_URL=redis://localhost:6379/0
     volumes:
       - /home/deployuser/data:/app/data/
 
@@ -30,9 +28,13 @@ services:
       context: .
     container_name: celery
     command: celery -A ai_intrusion_detector worker --loglevel=info
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     depends_on:
       - redis
     environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://localhost:6379/0
     volumes:
       - /home/deployuser/data:/app/data/
