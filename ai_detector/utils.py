@@ -2,8 +2,9 @@ import pyshark
 import csv
 import os
 from django.conf import settings
+from statistics import mean, stdev
 
-# Define feature names (your model columns)
+# Define all 67 fields expected in the CSV
 FIELDNAMES = [
     "Destination Port", "Flow Duration", "Total Fwd Packets", "Total Backward Packets",
     "Total Length of Fwd Packets", "Total Length of Bwd Packets",
@@ -24,11 +25,11 @@ FIELDNAMES = [
     "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
 ]
 
-def capture_model_features(output_file="/app/data/captured_traffic_raw.csv", packet_count=100):
+def capture_model_features(output_file="/app/data/captured_traffic_features.csv", packet_count=100):
     output_path = os.path.join(settings.BASE_DIR, "data", output_file)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Create or initialize CSV file
+    # Create or initialize the CSV file
     if not os.path.exists(output_path):
         with open(output_path, mode="w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
@@ -50,7 +51,12 @@ def capture_model_features(output_file="/app/data/captured_traffic_raw.csv", pac
             flow_key = (src_ip, dst_ip, src_port, dst_port)
 
             if flow_key not in flows:
-                flows[flow_key] = {"timestamps": [], "fwd_lengths": [], "bwd_lengths": []}
+                flows[flow_key] = {
+                    "timestamps": [],
+                    "fwd_lengths": [], "bwd_lengths": [],
+                    "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
+                    "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
+                }
 
             flow = flows[flow_key]
             flow["timestamps"].append(timestamp)
@@ -61,18 +67,54 @@ def capture_model_features(output_file="/app/data/captured_traffic_raw.csv", pac
             else:
                 flow["bwd_lengths"].append(length)
 
+            # Extract TCP Flags
+            if packet.transport_layer == "TCP":
+                flags = packet.tcp.flags_str
+                if "SYN" in flags: flow["syn_flags"] += 1
+                if "ACK" in flags: flow["ack_flags"] += 1
+                if "FIN" in flags: flow["fin_flags"] += 1
+                if "RST" in flags: flow["rst_flags"] += 1
+                if "PSH" in flags: flow["psh_flags"] += 1
+                if "URG" in flags: flow["urg_flags"] += 1
+                if "ECE" in flags: flow["ece_flags"] += 1
+
         except AttributeError:
             continue
 
-    # Write raw traffic data to CSV
+    # Write flows to CSV
     with open(output_path, mode="a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+
         for flow_key, stats in flows.items():
-            writer.writerow({
+            iat = [stats["timestamps"][i] - stats["timestamps"][i - 1] for i in range(1, len(stats["timestamps"]))]
+
+            row = {
                 "Destination Port": flow_key[3],
+                "Flow Duration": sum(iat) if iat else None,
                 "Total Fwd Packets": len(stats["fwd_lengths"]),
                 "Total Backward Packets": len(stats["bwd_lengths"]),
                 "Total Length of Fwd Packets": sum(stats["fwd_lengths"]),
                 "Total Length of Bwd Packets": sum(stats["bwd_lengths"]),
-                # Leave other fields as None for later processing
-            })
+                "Fwd Packet Length Max": max(stats["fwd_lengths"], default=None),
+                "Fwd Packet Length Min": min(stats["fwd_lengths"], default=None),
+                "Fwd Packet Length Mean": mean(stats["fwd_lengths"]) if stats["fwd_lengths"] else None,
+                "Fwd Packet Length Std": stdev(stats["fwd_lengths"]) if len(stats["fwd_lengths"]) > 1 else None,
+                "Bwd Packet Length Max": max(stats["bwd_lengths"], default=None),
+                "Bwd Packet Length Min": min(stats["bwd_lengths"], default=None),
+                "Bwd Packet Length Mean": mean(stats["bwd_lengths"]) if stats["bwd_lengths"] else None,
+                "Bwd Packet Length Std": stdev(stats["bwd_lengths"]) if len(stats["bwd_lengths"]) > 1 else None,
+                "SYN Flag Count": stats["syn_flags"],
+                "ACK Flag Count": stats["ack_flags"],
+                "FIN Flag Count": stats["fin_flags"],
+                "RST Flag Count": stats["rst_flags"],
+                "PSH Flag Count": stats["psh_flags"],
+                "URG Flag Count": stats["urg_flags"],
+                "ECE Flag Count": stats["ece_flags"],
+            }
+
+            # Fill remaining fields with None
+            for field in FIELDNAMES:
+                if field not in row:
+                    row[field] = None
+
+            writer.writerow(row)
