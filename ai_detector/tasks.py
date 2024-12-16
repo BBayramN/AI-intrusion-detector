@@ -1,7 +1,13 @@
 from celery import shared_task
+from .utils import capture_model_features
 
-@shared_task
-def capture_model_features_task(output_file = '/app/data/model_input_data.csv'):
-    from .utils import capture_model_features  # Import your function
-    capture_model_features(output_file)
-    return f"Data captured and saved to {output_file}"
+@shared_task(bind=True)
+def capture_model_features_task(self, packet_count=300, output_file="/app/data/captured_traffic_features.csv"):
+    """
+    Celery task to run the feature extraction function asynchronously.
+    """
+    try:
+        capture_model_features(output_file=output_file, packet_count=packet_count)
+        return {"status": "success", "message": f"Captured traffic written to {output_file}"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
