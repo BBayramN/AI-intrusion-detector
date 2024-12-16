@@ -1,47 +1,43 @@
 import pyshark
 import csv
-import os
 from statistics import mean, stdev
 
-def capture_model_features(output_file = '/app/data/model_input_data.csv'):
-    # Define the feature columns
-    fieldnames = [
-        "Destination Port", "Flow Duration", "Total Fwd Packets", "Total Backward Packets",
-        "Total Length of Fwd Packets", "Total Length of Bwd Packets",
-        "Fwd Packet Length Max", "Fwd Packet Length Min", "Fwd Packet Length Mean", "Fwd Packet Length Std",
-        "Bwd Packet Length Max", "Bwd Packet Length Min", "Bwd Packet Length Mean", "Bwd Packet Length Std",
-        "Flow Bytes/s", "Flow Packets/s", "Flow IAT Mean", "Flow IAT Std", "Flow IAT Max", "Flow IAT Min",
-        "Fwd IAT Total", "Fwd IAT Mean", "Fwd IAT Std", "Fwd IAT Max", "Fwd IAT Min",
-        "Bwd IAT Total", "Bwd IAT Mean", "Bwd IAT Std", "Bwd IAT Max", "Bwd IAT Min",
-        "Fwd PSH Flags", "Fwd Header Length", "Bwd Header Length",
-        "Fwd Packets/s", "Bwd Packets/s", "Min Packet Length", "Max Packet Length",
-        "Packet Length Mean", "Packet Length Std", "Packet Length Variance",
-        "FIN Flag Count", "SYN Flag Count", "RST Flag Count", "PSH Flag Count",
-        "ACK Flag Count", "URG Flag Count", "ECE Flag Count", "Down/Up Ratio",
-        "Average Packet Size", "Avg Fwd Segment Size", "Avg Bwd Segment Size",
-        "Subflow Fwd Packets", "Subflow Fwd Bytes", "Subflow Bwd Packets", "Subflow Bwd Bytes",
-        "Init_Win_bytes_forward", "Init_Win_bytes_backward", "act_data_pkt_fwd",
-        "min_seg_size_forward", "Active Mean", "Active Std", "Active Max", "Active Min",
-        "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
-    ]
+# Define the exact column headers for your model input
+fieldnames = [
+    "Destination Port", "Flow Duration", "Total Fwd Packets", "Total Backward Packets",
+    "Total Length of Fwd Packets", "Total Length of Bwd Packets",
+    "Fwd Packet Length Max", "Fwd Packet Length Min", "Fwd Packet Length Mean", "Fwd Packet Length Std",
+    "Bwd Packet Length Max", "Bwd Packet Length Min", "Bwd Packet Length Mean", "Bwd Packet Length Std",
+    "Flow Bytes/s", "Flow Packets/s", "Flow IAT Mean", "Flow IAT Std", "Flow IAT Max", "Flow IAT Min",
+    "Fwd IAT Total", "Fwd IAT Mean", "Fwd IAT Std", "Fwd IAT Max", "Fwd IAT Min",
+    "Bwd IAT Total", "Bwd IAT Mean", "Bwd IAT Std", "Bwd IAT Max", "Bwd IAT Min",
+    "Fwd PSH Flags", "Fwd Header Length", "Bwd Header Length",
+    "Fwd Packets/s", "Bwd Packets/s", "Min Packet Length", "Max Packet Length",
+    "Packet Length Mean", "Packet Length Std", "Packet Length Variance",
+    "FIN Flag Count", "SYN Flag Count", "RST Flag Count", "PSH Flag Count",
+    "ACK Flag Count", "URG Flag Count", "ECE Flag Count", "Down/Up Ratio",
+    "Average Packet Size", "Avg Fwd Segment Size", "Avg Bwd Segment Size",
+    "Subflow Fwd Packets", "Subflow Fwd Bytes", "Subflow Bwd Packets", "Subflow Bwd Bytes",
+    "Init_Win_bytes_forward", "Init_Win_bytes_backward", "act_data_pkt_fwd",
+    "min_seg_size_forward", "Active Mean", "Active Std", "Active Max", "Active Min",
+    "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
+]
 
-
-
-
+# Function to extract features and write to CSV
+def capture_to_csv(output_file='captured_model_input.csv', packet_count=100):
     # Initialize CSV file
-    if not os.path.exists(output_file):
-        with open(output_file, mode='w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
+    with open(output_file, mode='w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
 
-    # Start capturing packets
-    capture = pyshark.LiveCapture(interface='eth0')
+    # Start capturing live traffic
+    capture = pyshark.LiveCapture(interface='eth0')  # Replace 'eth0' with your network interface
     flows = {}
 
-    for packet in capture.sniff_continuously(packet_count=300):  # Adjust packet_count as needed
+    for packet in capture.sniff_continuously(packet_count=packet_count):
         try:
-            src_ip = getattr(packet.ip, 'src', None)
-            dst_ip = getattr(packet.ip, 'dst', None)
+            src_ip = packet.ip.src
+            dst_ip = packet.ip.dst
             src_port = getattr(packet[packet.transport_layer], 'srcport', None)
             dst_port = getattr(packet[packet.transport_layer], 'dstport', None)
             flow_key = (src_ip, dst_ip, src_port, dst_port)
@@ -51,24 +47,21 @@ def capture_model_features(output_file = '/app/data/model_input_data.csv'):
                     "timestamps": [],
                     "fwd_lengths": [],
                     "bwd_lengths": [],
-                    "syn_flags": 0,
-                    "ack_flags": 0,
-                    "fin_flags": 0,
-                    "rst_flags": 0,
-                    "psh_flags": 0,
-                    "urg_flags": 0,
-                    "ece_flags": 0,
+                    "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
+                    "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
                 }
 
             flow = flows[flow_key]
             flow["timestamps"].append(float(packet.sniff_timestamp))
             packet_length = int(packet.length)
 
+            # Directional logic for forward/backward packets
             if src_ip == packet.ip.src:
                 flow["fwd_lengths"].append(packet_length)
             else:
                 flow["bwd_lengths"].append(packet_length)
 
+            # TCP flags extraction
             if packet.transport_layer == "TCP":
                 flags = packet.tcp.flags_str
                 if "SYN" in flags: flow["syn_flags"] += 1
@@ -82,7 +75,7 @@ def capture_model_features(output_file = '/app/data/model_input_data.csv'):
         except AttributeError:
             continue
 
-    # Process flows into features
+    # Aggregate features for each flow
     features = []
     for flow_key, stats in flows.items():
         flow_duration = max(stats["timestamps"]) - min(stats["timestamps"]) if len(stats["timestamps"]) > 1 else 0
@@ -90,9 +83,10 @@ def capture_model_features(output_file = '/app/data/model_input_data.csv'):
         total_bwd_packets = len(stats["bwd_lengths"])
         total_fwd_length = sum(stats["fwd_lengths"])
         total_bwd_length = sum(stats["bwd_lengths"])
+        avg_packet_size = (total_fwd_length + total_bwd_length) / (total_fwd_packets + total_bwd_packets) if (total_fwd_packets + total_bwd_packets) > 0 else 0
 
         features.append({
-            "Destination Port": flow_key[3],
+            "Destination Port": flow_key[3] or 0,
             "Flow Duration": flow_duration,
             "Total Fwd Packets": total_fwd_packets,
             "Total Backward Packets": total_bwd_packets,
@@ -115,17 +109,17 @@ def capture_model_features(output_file = '/app/data/model_input_data.csv'):
             "PSH Flag Count": stats["psh_flags"],
             "URG Flag Count": stats["urg_flags"],
             "ECE Flag Count": stats["ece_flags"],
-            # Add other features as needed
+            "Down/Up Ratio": total_fwd_packets / total_bwd_packets if total_bwd_packets > 0 else 0,
+            "Average Packet Size": avg_packet_size,
+            # Add remaining calculated fields as required...
         })
 
-    for feature in features:
-        if len(feature) != len(fieldnames):
-            print(f"Row length mismatch: {feature}")
-
-    # Write features to CSV
-    # Open the file in append mode with quoting enabled
+    # Write to CSV
     with open(output_file, mode='a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, quoting=csv.QUOTE_MINIMAL)
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writerows(features)
 
     print(f"Captured {len(features)} flows written to {output_file}")
+
+# Example usage
+capture_to_csv(output_file='/app/data/model_input_data.csv', packet_count=10)
