@@ -24,7 +24,7 @@ FIELDNAMES = [
     "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
 ]
 
-def capture_raw_traffic(output_file="/app/data/captured_traffic_raw.csv", packet_count=100):
+def capture_model_features(output_file="/app/data/captured_traffic_raw.csv", packet_count=100):
     output_path = os.path.join(settings.BASE_DIR, "data", output_file)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
