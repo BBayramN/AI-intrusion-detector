@@ -1,12 +1,16 @@
 from django.http import JsonResponse
-import pyshark
-from .utils import capture_model_features
 
+
+from .tasks import capture_model_features_task
 from django.http import JsonResponse
 
 def capture_data(request):
-    try:
-        capture_model_features('/app/data/model_input_data.csv')  # Use absolute path for Docker compatibility
-        return JsonResponse({'status': 'success', 'message': 'Traffic data captured successfully!'})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)})
+    task = capture_model_features_task.delay()  # Run the task asynchronously
+    return JsonResponse({'status': 'success', 'task_id': task.id})
+
+
+from celery.result import AsyncResult
+
+def task_status(request, task_id):
+    result = AsyncResult(task_id)
+    return JsonResponse({'task_id': task_id, 'status': result.status})
