@@ -1,10 +1,10 @@
 import pyshark
 import csv
 import os
-from django.conf import settings
 from statistics import mean, stdev
+from django.conf import settings
 
-# Define all 67 fields expected in the CSV
+# Define all expected feature names (67 columns)
 FIELDNAMES = [
     "Destination Port", "Flow Duration", "Total Fwd Packets", "Total Backward Packets",
     "Total Length of Fwd Packets", "Total Length of Bwd Packets",
@@ -29,7 +29,7 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
     output_path = os.path.join(settings.BASE_DIR, "data", output_file)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Create or initialize the CSV file
+    # Initialize CSV file
     if not os.path.exists(output_path):
         with open(output_path, mode="w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
@@ -41,6 +41,7 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
 
     for packet in capture.sniff_continuously(packet_count=packet_count):
         try:
+            # Extract basic flow information
             src_ip = getattr(packet.ip, "src", None)
             dst_ip = getattr(packet.ip, "dst", None)
             src_port = getattr(packet[packet.transport_layer], "srcport", None)
@@ -48,20 +49,20 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
             length = int(packet.length)
             timestamp = float(packet.sniff_timestamp)
 
+            # Generate a unique flow key
             flow_key = (src_ip, dst_ip, src_port, dst_port)
 
             if flow_key not in flows:
                 flows[flow_key] = {
-                    "timestamps": [],
-                    "fwd_lengths": [], "bwd_lengths": [],
+                    "timestamps": [], "fwd_lengths": [], "bwd_lengths": [],
                     "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
                     "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
                 }
 
+            # Add packet data
             flow = flows[flow_key]
             flow["timestamps"].append(timestamp)
 
-            # Direction-based lengths
             if src_ip == flow_key[0]:
                 flow["fwd_lengths"].append(length)
             else:
@@ -81,7 +82,7 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
         except AttributeError:
             continue
 
-    # Write flows to CSV
+    # Write processed flows to CSV
     with open(output_path, mode="a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
 
@@ -99,20 +100,16 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
                 "Fwd Packet Length Min": min(stats["fwd_lengths"], default=None),
                 "Fwd Packet Length Mean": mean(stats["fwd_lengths"]) if stats["fwd_lengths"] else None,
                 "Fwd Packet Length Std": stdev(stats["fwd_lengths"]) if len(stats["fwd_lengths"]) > 1 else None,
-                "Bwd Packet Length Max": max(stats["bwd_lengths"], default=None),
-                "Bwd Packet Length Min": min(stats["bwd_lengths"], default=None),
-                "Bwd Packet Length Mean": mean(stats["bwd_lengths"]) if stats["bwd_lengths"] else None,
-                "Bwd Packet Length Std": stdev(stats["bwd_lengths"]) if len(stats["bwd_lengths"]) > 1 else None,
                 "SYN Flag Count": stats["syn_flags"],
                 "ACK Flag Count": stats["ack_flags"],
                 "FIN Flag Count": stats["fin_flags"],
                 "RST Flag Count": stats["rst_flags"],
                 "PSH Flag Count": stats["psh_flags"],
                 "URG Flag Count": stats["urg_flags"],
-                "ECE Flag Count": stats["ece_flags"],
+                "ECE Flag Count": stats["ece_flags"]
             }
 
-            # Fill remaining fields with None
+            # Fill missing columns with None
             for field in FIELDNAMES:
                 if field not in row:
                     row[field] = None
