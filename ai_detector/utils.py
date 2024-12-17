@@ -25,11 +25,12 @@ FIELDNAMES = [
     "Idle Mean", "Idle Std", "Idle Max", "Idle Min"
 ]
 
+
 def capture_model_features(output_file="/app/data/captured_traffic_features.csv", packet_count=100):
     output_path = os.path.join(settings.BASE_DIR, "data", output_file)
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Initialize CSV file
+    # Create or initialize the CSV file
     if not os.path.exists(output_path):
         with open(output_path, mode="w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
@@ -41,7 +42,6 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
 
     for packet in capture.sniff_continuously(packet_count=packet_count):
         try:
-            # Extract basic flow information
             src_ip = getattr(packet.ip, "src", None)
             dst_ip = getattr(packet.ip, "dst", None)
             src_port = getattr(packet[packet.transport_layer], "srcport", None)
@@ -49,17 +49,16 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
             length = int(packet.length)
             timestamp = float(packet.sniff_timestamp)
 
-            # Generate a unique flow key
             flow_key = (src_ip, dst_ip, src_port, dst_port)
 
             if flow_key not in flows:
                 flows[flow_key] = {
-                    "timestamps": [], "fwd_lengths": [], "bwd_lengths": [],
+                    "timestamps": [],
+                    "fwd_lengths": [], "bwd_lengths": [],
                     "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
                     "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
                 }
 
-            # Add packet data
             flow = flows[flow_key]
             flow["timestamps"].append(timestamp)
 
@@ -109,7 +108,7 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
                 "ECE Flag Count": stats["ece_flags"]
             }
 
-            # Fill missing columns with None
+            # Add all missing columns explicitly as None
             for field in FIELDNAMES:
                 if field not in row:
                     row[field] = None
