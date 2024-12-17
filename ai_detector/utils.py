@@ -141,7 +141,7 @@ def calculate_feature_columns(flows):
     
     return results
 
-def capture_network_features(
+def capture_model_features(
     output_file="/app/data/network_features.csv", 
     # output_excel_file="/app/data/network_features.xlsx",
     interface="eth0", 
