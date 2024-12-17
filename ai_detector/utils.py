@@ -81,14 +81,20 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
         except AttributeError:
             continue
 
-    # Write processed flows to CSV
+    
+    # Write flows to CSV
     with open(output_path, mode="a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
 
         for flow_key, stats in flows.items():
+            # Calculate IAT (Inter-Arrival Time)
             iat = [stats["timestamps"][i] - stats["timestamps"][i - 1] for i in range(1, len(stats["timestamps"]))]
 
-            row = {
+            # Initialize a row with default values for all columns
+            row = {field: None for field in FIELDNAMES}
+
+            # Update the row with available values
+            row.update({
                 "Destination Port": flow_key[3],
                 "Flow Duration": sum(iat) if iat else None,
                 "Total Fwd Packets": len(stats["fwd_lengths"]),
@@ -99,6 +105,10 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
                 "Fwd Packet Length Min": min(stats["fwd_lengths"], default=None),
                 "Fwd Packet Length Mean": mean(stats["fwd_lengths"]) if stats["fwd_lengths"] else None,
                 "Fwd Packet Length Std": stdev(stats["fwd_lengths"]) if len(stats["fwd_lengths"]) > 1 else None,
+                "Bwd Packet Length Max": max(stats["bwd_lengths"], default=None),
+                "Bwd Packet Length Min": min(stats["bwd_lengths"], default=None),
+                "Bwd Packet Length Mean": mean(stats["bwd_lengths"]) if stats["bwd_lengths"] else None,
+                "Bwd Packet Length Std": stdev(stats["bwd_lengths"]) if len(stats["bwd_lengths"]) > 1 else None,
                 "SYN Flag Count": stats["syn_flags"],
                 "ACK Flag Count": stats["ack_flags"],
                 "FIN Flag Count": stats["fin_flags"],
@@ -106,11 +116,8 @@ def capture_model_features(output_file="/app/data/captured_traffic_features.csv"
                 "PSH Flag Count": stats["psh_flags"],
                 "URG Flag Count": stats["urg_flags"],
                 "ECE Flag Count": stats["ece_flags"]
-            }
+            })
 
-            # Add all missing columns explicitly as None
-            for field in FIELDNAMES:
-                if field not in row:
-                    row[field] = None
-
+            # Write the row
             writer.writerow(row)
+
