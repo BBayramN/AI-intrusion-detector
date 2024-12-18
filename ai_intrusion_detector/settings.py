@@ -131,8 +131,14 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-
+import os
 # settings.py
+# Define the path for the logs directory
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+
+# Ensure the log directory exists
+os.makedirs(LOG_DIR, exist_ok=True)
+
 
 LOGGING = {
     'version': 1,
@@ -141,7 +147,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/app/logs/networkapp.log',
+            'filename': os.path.join(LOG_DIR, 'ai_detector.log'),
         },
     },
     'loggers': {

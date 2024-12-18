@@ -16,6 +16,7 @@ services:
       - celery
     volumes:
       - /home/deployuser/data:/app/data/
+      - /logs:/app/logs      
 
   redis:
     image: redis:latest
@@ -38,3 +39,4 @@ services:
       - CELERY_BROKER_URL=redis://localhost:6379/0
     volumes:
       - /home/deployuser/data:/app/data/
+      - /logs:/app/logs 
