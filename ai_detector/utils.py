@@ -8,7 +8,7 @@ import pandas as pd
 import logging
 
 # Setup logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ai_detector')
 
 
 # Define all expected feature names (67 columns)

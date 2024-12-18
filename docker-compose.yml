@@ -6,7 +6,7 @@ services:
       context: .
     mem_limit: 1024m
     ports:
-      - "80:80"
+      - "8000:8000"
     network_mode: host
     cap_add:
       - NET_ADMIN
