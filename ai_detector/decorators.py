@@ -2,7 +2,7 @@
 from functools import wraps
 from .tasks import capture_model_features_task
 
-def trigger_network_capture(packet_count=300, output_file='/app/data/decorators.csv'):
+def trigger_network_capture(packet_count=300, output_file='/app/data/captured_traffic_features.csv'):
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
