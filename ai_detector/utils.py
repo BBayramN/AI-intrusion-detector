@@ -5,6 +5,11 @@ import numpy as np
 from statistics import mean, stdev
 from django.conf import settings
 import pandas as pd
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
+
 
 # Define all expected feature names (67 columns)
 FIELDNAMES = [
@@ -145,7 +150,8 @@ def capture_model_features(
     output_file="/app/data/network_features.csv", 
     # output_excel_file="/app/data/network_features.xlsx",
     interface="eth0", 
-    packet_count=100
+    packet_count=100,
+    bpf_filter="tcp port 80 or tcp port 443"
 ):
     """
     Capture network traffic features and save to CSV and Excel.
@@ -159,66 +165,72 @@ def capture_model_features(
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     
+    try:
     # Start capturing traffic
-    capture = pyshark.LiveCapture(interface=interface)
-    flows = {}
+        capture = pyshark.LiveCapture(interface=interface)
+        flows = {}
     
     # Capture packets
-    for packet in capture.sniff_continuously(packet_count=packet_count):
-        try:
-            src_ip = getattr(packet.ip, "src", None)
-            dst_ip = getattr(packet.ip, "dst", None)
-            src_port = getattr(packet[packet.transport_layer], "srcport", None)
-            dst_port = getattr(packet[packet.transport_layer], "dstport", None)
-            length = int(packet.length)
-            timestamp = float(packet.sniff_timestamp)
+        for packet in capture.sniff_continuously(packet_count=packet_count):
+            try:
+                src_ip = getattr(packet.ip, "src", None)
+                dst_ip = getattr(packet.ip, "dst", None)
+                src_port = getattr(packet[packet.transport_layer], "srcport", None)
+                dst_port = getattr(packet[packet.transport_layer], "dstport", None)
+                length = int(packet.length)
+                timestamp = float(packet.sniff_timestamp)
 
-            flow_key = (src_ip, dst_ip, src_port, dst_port)
+                flow_key = (src_ip, dst_ip, src_port, dst_port)
 
-            if flow_key not in flows:
-                flows[flow_key] = {
-                    "timestamps": [],
-                    "fwd_lengths": [], "bwd_lengths": [],
-                    "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
-                    "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
-                }
+                if flow_key not in flows:
+                    flows[flow_key] = {
+                        "timestamps": [],
+                        "fwd_lengths": [], "bwd_lengths": [],
+                        "syn_flags": 0, "ack_flags": 0, "fin_flags": 0,
+                        "rst_flags": 0, "psh_flags": 0, "urg_flags": 0, "ece_flags": 0
+                    }
 
-            flow = flows[flow_key]
-            flow["timestamps"].append(timestamp)
+                flow = flows[flow_key]
+                flow["timestamps"].append(timestamp)
 
-            if src_ip == flow_key[0]:
-                flow["fwd_lengths"].append(length)
-            else:
-                flow["bwd_lengths"].append(length)
+                if src_ip == flow_key[0]:
+                    flow["fwd_lengths"].append(length)
+                else:
+                    flow["bwd_lengths"].append(length)
 
-            # Extract TCP Flags
-            if packet.transport_layer == "TCP":
-                flags = packet.tcp.flags_str
-                if "SYN" in flags: flow["syn_flags"] += 1
-                if "ACK" in flags: flow["ack_flags"] += 1
-                if "FIN" in flags: flow["fin_flags"] += 1
-                if "RST" in flags: flow["rst_flags"] += 1
-                if "PSH" in flags: flow["psh_flags"] += 1
-                if "URG" in flags: flow["urg_flags"] += 1
-                if "ECE" in flags: flow["ece_flags"] += 1
+                # Extract TCP Flags
+                if packet.transport_layer == "TCP":
+                    flags = packet.tcp.flags_str
+                    if "SYN" in flags: flow["syn_flags"] += 1
+                    if "ACK" in flags: flow["ack_flags"] += 1
+                    if "FIN" in flags: flow["fin_flags"] += 1
+                    if "RST" in flags: flow["rst_flags"] += 1
+                    if "PSH" in flags: flow["psh_flags"] += 1
+                    if "URG" in flags: flow["urg_flags"] += 1
+                    if "ECE" in flags: flow["ece_flags"] += 1
 
-        except AttributeError:
-            continue
-    
-    # Calculate features
-    features = calculate_feature_columns(flows)
-    
-    if features:
-        # Save to CSV
-        df = pd.DataFrame(features)
-        df.to_csv(output_file, index=False)
+            except AttributeError as e:
+                logger.warning(f"AttributeError encountered: {e}")
+                continue
         
-        # Save to Excel
-        # df.to_excel(output_excel_file, index=False)
+        # Calculate features
+        features = calculate_feature_columns(flows)
         
-        print(f"Network features saved to {output_file}")
-    else:
-        print("No network features captured.")
+        if features:
+            # Save to CSV
+            df = pd.DataFrame(features)
+            df.to_csv(output_file, index=False)
+            
+            # Save to Excel
+            # df.to_excel(output_excel_file, index=False)
+            
+            logger.info(f"Network features saved to {output_file}")
+        else:
+            logger.info("No network features captured.")
+    
+    except Exception as e:
+        logger.error(f"Error during packet capture: {e}")
+
 
 # # Example usage
 # if __name__ == "__main__":
