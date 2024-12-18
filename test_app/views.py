@@ -3,14 +3,15 @@ from django.contrib.auth import authenticate, login ,logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignupForm, LoginForm
 from django.contrib.auth.decorators import login_required
+from ai_detector.decorators import trigger_network_capture
 
-
-
+@trigger_network_capture(packet_count=300, output_file='/app/data/decorators.csv')
 @login_required
 def homepage(request):
     return render(request, 'homepage.html', {'user': request.user})
 
 
+@trigger_network_capture(packet_count=300, output_file='/app/data/decorators.csv')
 def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -23,6 +24,7 @@ def signup_view(request):
         form = SignupForm()
     return render(request, 'signup.html', {'form': form})
 
+@trigger_network_capture(packet_count=300, output_file='/app/data/decorators.csv')
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
@@ -35,6 +37,7 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
+@trigger_network_capture(packet_count=300, output_file='/app/data/decorators.csv')
 def logout_view(request):
     logout(request)
     return redirect('login')
