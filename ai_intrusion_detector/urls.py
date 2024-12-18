@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path,include
 
 urlpatterns = [
-    path('',include("ai_detector.urls")),
+    path('',include("test_app.urls")),
+    path('ai/',include("ai_detector.urls")),
     path('admin/', admin.site.urls)
     
 ]

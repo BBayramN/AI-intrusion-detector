@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'ai_detector'
+    'ai_detector',
+    'test_app'
 ]
 
 MIDDLEWARE = [
