@@ -45,13 +45,12 @@ services:
   nginx:
     image: nginx:latest
     container_name: nginx
-    ports:
-      - "80:80"  # Map host port 80 to container port 80
+    network_mode: host  # Use host network for Nginx
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Mount your custom Nginx config
-      # - ./data/static:/app/static  # Serve static files
-      # - ./data/media:/app/media    # Serve media files
-      # - ./logs:/app/logs            # Optional: If Nginx needs access to logs
+      # - ./data/static:/app/static  # Serve static files (Uncomment if needed)
+      # - ./data/media:/app/media    # Serve media files (Uncomment if needed)
+      # - ./logs:/app/logs            # Optional: If Nginx needs access to logs (Uncomment if needed)
     depends_on:
       - web
     restart: unless-stopped
