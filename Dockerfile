@@ -15,14 +15,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of your Django application code into /app
 COPY . /app/
-
+COPY . /app/NTLFlowLyzer
 # (Optional) Expose port 8000 if you want external traffic
 EXPOSE 8000
 
 # Now install NTLFlowLyzer. 
 # 1) If NTLFlowLyzer is part of the same repo, and is located in /app/NTLFlowLyzer
 # 2) If NTLFlowLyzer has its own requirements, copy them or reference them.
-RUN git clone https://github.com/ahlashkari/NTLFlowLyzer.git
+#RUN git clone https://github.com/ahlashkari/NTLFlowLyzer.git
 WORKDIR /app/NTLFlowLyzer
 # If NTLFlowLyzer has a separate requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
