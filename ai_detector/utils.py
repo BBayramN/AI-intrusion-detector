@@ -9,7 +9,7 @@ def capture_model_features(interface="eth0", packet_count=500, bpf_filter="tcp p
     pcap_dir = "/app/data/captures"
     pcap_file = f"{pcap_dir}/capture_{packet_count}.pcap"
     os.makedirs(pcap_dir, exist_ok=True)
-    tshark_cmd = f"tshark -i {interface} -c {packet_count}  -w {pcap_file} -F pcap" # -F change pcapng to pcap
+    tshark_cmd = f"tshark -f {bpf_filter} -i {interface} -c {packet_count}  -w {pcap_file} -F pcap" # -F change pcapng to pcap
     # -f {bpf_filter}
     
     logger.info(f"Running tshark command: {tshark_cmd}")
@@ -34,7 +34,7 @@ def capture_model_features(interface="eth0", packet_count=500, bpf_filter="tcp p
 
     try:
         result = os.system(flow_cmd)
-        if result.returncode == 0:
+        if result == 0:
             if os.path.isfile(csv_file):
                 logger.info(f"CSV file generated at {csv_file}")
             else:
