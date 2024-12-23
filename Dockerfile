@@ -23,12 +23,12 @@ EXPOSE 8000
 # 1) If NTLFlowLyzer is part of the same repo, and is located in /app/NTLFlowLyzer
 # 2) If NTLFlowLyzer has its own requirements, copy them or reference them.
 #RUN git clone https://github.com/ahlashkari/NTLFlowLyzer.git
-WORKDIR /app/NTLFlowLyzer
+# WORKDIR /app/NTLFlowLyzer
 # If NTLFlowLyzer has a separate requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
 
 # Finally, install NTLFlowLyzer via setup.py
-RUN python3 setup.py install
+# RUN python3 setup.py install
 
 # Return to /app (the Django project root) for final CMD
 WORKDIR /app
