@@ -22,6 +22,7 @@ EXPOSE 8000
 # Now install NTLFlowLyzer. 
 # 1) If NTLFlowLyzer is part of the same repo, and is located in /app/NTLFlowLyzer
 # 2) If NTLFlowLyzer has its own requirements, copy them or reference them.
+RUN git clone https://github.com/ahlashkari/NTLFlowLyzer.git
 WORKDIR /app/NTLFlowLyzer
 # If NTLFlowLyzer has a separate requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
