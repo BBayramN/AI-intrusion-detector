@@ -6,15 +6,13 @@ from django.contrib.auth.decorators import login_required
 from ai_detector.decorators import trigger_network_capture
 
 @trigger_network_capture(packet_count=500, 
-                        output_file='/app/data/home_capture_features.csv',
                         bpf_filter="tcp port 80 or tcp port 443")
 @login_required
 def homepage(request):
     return render(request, 'homepage.html', {'user': request.user})
 
 
-@trigger_network_capture(packet_count=500, 
-                        output_file='/app/data/home_capture_features.csv',
+@trigger_network_capture(packet_count=500,
                         bpf_filter="tcp port 80 or tcp port 443")
 def signup_view(request):
     if request.method == 'POST':
@@ -29,7 +27,6 @@ def signup_view(request):
     return render(request, 'signup.html', {'form': form})
 
 @trigger_network_capture(packet_count=500, 
-                        output_file='/app/data/home_capture_features.csv',
                         bpf_filter="tcp port 80 or tcp port 443")
 def login_view(request):
     if request.method == 'POST':
@@ -44,7 +41,6 @@ def login_view(request):
 
 
 @trigger_network_capture(packet_count=500, 
-                        output_file='/app/data/home_capture_features.csv',
                         bpf_filter="tcp port 80 or tcp port 443")
 def logout_view(request):
     logout(request)
