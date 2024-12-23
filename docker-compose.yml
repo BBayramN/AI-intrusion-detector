@@ -16,6 +16,7 @@ services:
       - celery
     volumes:
       - /home/deployuser/data:/app/data/
+#      - /home/deployuser/NTLFlowLyzer/:/app/NTLFlowLyzer
       - /logs:/app/logs      
 
   redis:

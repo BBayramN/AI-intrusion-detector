@@ -9,8 +9,8 @@ def capture_model_features(interface="eth0", packet_count=500, bpf_filter="tcp p
     pcap_dir = "/app/data/captures"
     pcap_file = f"{pcap_dir}/capture_{packet_count}.pcap"
     os.makedirs(pcap_dir, exist_ok=True)
-    tshark_cmd = f"tshark -i {interface} -c {packet_count} -f {bpf_filter} -w {pcap_file} -F pcap" # -F change pcapng to pcap
-
+    tshark_cmd = f"tshark -i {interface} -c {packet_count}  -w {pcap_file} -F pcap" # -F change pcapng to pcap
+    # -f {bpf_filter}
     
     logger.info(f"Running tshark command: {tshark_cmd}")
 
