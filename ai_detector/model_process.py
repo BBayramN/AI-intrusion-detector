@@ -6,7 +6,7 @@ scaler = joblib.load(AI_SCALER)
 model = joblib.load(AI_MODEL)
 
 def model_input(request):
-    file = '/app/data/csv/capture_500.csv'
+    file = '/app/data/csv/capture_10000.csv'
     df = pd.read_csv(file)
 
     dataset_1 = [
