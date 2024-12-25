@@ -4,6 +4,7 @@ FROM python:3.10-slim
 RUN apt-get update && \
     apt-get install -y \
       tshark \
+      libgomp1 \
       git && \
     apt-get clean
 
