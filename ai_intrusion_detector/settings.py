@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -131,7 +131,10 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-import os
+AI_SCALER = os.path.join(BASE_DIR,'scaler2_model.pkl')
+AI_MODEL = os.path.join(BASE_DIR,'final_ai_model.joblib')
+
+
 # settings.py
 # Define the path for the logs directory
 LOG_DIR = os.path.join(BASE_DIR, 'logs')

@@ -2,7 +2,7 @@
 from functools import wraps
 from .tasks import capture_model_features_task
 
-def trigger_network_capture(packet_count=300, bpf_filter="tcp port 80 or tcp port 443"):
+def trigger_network_capture(packet_count=10000, bpf_filter="tcp port 80 or tcp port 443"):
     """
     Decorator to trigger network capture with specified parameters.
     

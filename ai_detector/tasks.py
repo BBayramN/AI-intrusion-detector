@@ -4,7 +4,7 @@ from celery import shared_task
 from .utils import capture_model_features
 
 @shared_task(bind=True)
-def capture_model_features_task(self, packet_count=500,bpf_filter="tcp port 80 or tcp port 443"):
+def capture_model_features_task(self, packet_count=10000,bpf_filter="tcp port 80 or tcp port 443"):
     """
     Celery task to run the feature extraction function asynchronously.
     """

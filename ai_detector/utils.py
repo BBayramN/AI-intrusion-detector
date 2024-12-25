@@ -5,7 +5,7 @@ import os
 
 logger = logging.getLogger('ai_detector')
 
-def capture_model_features(interface="eth0", packet_count=500, bpf_filter="tcp port 80 or tcp port 443"):
+def capture_model_features(interface="eth0", packet_count=10000, bpf_filter="tcp port 80 or tcp port 443"):
     pcap_dir = "/app/data/captures"
     pcap_file = f"{pcap_dir}/capture_{packet_count}.pcap"
     os.makedirs(pcap_dir, exist_ok=True)
