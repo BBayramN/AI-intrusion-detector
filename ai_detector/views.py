@@ -9,7 +9,7 @@ def task_status(request, task_id):
 
 
 from django.http import JsonResponse
-from .tasks import capture_model_features_task, model_input_task
+
 
 # def capture_data_view(request):
 #     """
@@ -30,9 +30,8 @@ def predict(request):
     # res = model_input_task.delay()
     # res = model_input(request,'C:/Users/Bayram/Desktop/gazi/cicgit/capture_500.csv')
     try:
-        result = chained_attack_detection_task.delay(packet_count=10000, bpf_filter="tcp port 80 or tcp port 443")
-        print(result.get(timeout=120)) 
-        return JsonResponse(result.get(timeout=120),safe=False) # Wait for the result and print it
+        result = model_input()
+        return JsonResponse(result,safe=False) # Wait for the result and print it
     except Exception as e:
         return JsonResponse("No prediction",safe=False)
         

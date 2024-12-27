@@ -5,15 +5,13 @@ from .forms import SignupForm, LoginForm
 from django.contrib.auth.decorators import login_required
 from ai_detector.decorators import trigger_network_capture
 
-@trigger_network_capture(packet_count=10000, 
-                        bpf_filter="tcp port 80 or tcp port 443")
+@trigger_network_capture(packet_count=10000)
 # @login_required
 def homepage(request):
     return render(request, 'homepage.html', {'user': request.user})
 
 
-@trigger_network_capture(packet_count=10000,
-                        bpf_filter="tcp port 80 or tcp port 443")
+@trigger_network_capture(packet_count=10000)
 def signup_view(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -26,8 +24,7 @@ def signup_view(request):
         form = SignupForm()
     return render(request, 'signup.html', {'form': form})
 
-@trigger_network_capture(packet_count=10000, 
-                        bpf_filter="tcp port 80 or tcp port 443")
+@trigger_network_capture(packet_count=10000)
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
@@ -40,8 +37,7 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-@trigger_network_capture(packet_count=10000, 
-                        bpf_filter="tcp port 80 or tcp port 443")
+@trigger_network_capture(packet_count=10000)
 def logout_view(request):
     logout(request)
     return redirect('login')
