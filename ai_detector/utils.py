@@ -21,16 +21,16 @@ def capture_model_features(interface="eth0", packet_count=10000, bpf_filter="tcp
         logger.error(f"Failed to capture packets with tshark. Return code: {ret}")
 
 
+
+
+def convert_pcap_csv():
     # Step 2: Convert the .pcap to CSV using new Python flow library
     csv_dir = "/app/data/csv"
     os.makedirs(csv_dir, exist_ok=True)
-    csv_file = f"{csv_dir}/capture_{packet_count}.csv"
+    csv_file = f"{csv_dir}/capture_10000.csv"
 
     nftl_config = "/app/ntlflowlyzer_config"
     flow_cmd = f"ntlflowlyzer -c {nftl_config}"
-
-
-    logger.info(f"Converting {pcap_file} to {csv_file} with new flow library: {' '.join(flow_cmd)}")
 
     try:
         result = os.system(flow_cmd)
