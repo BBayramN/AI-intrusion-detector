@@ -9,7 +9,7 @@ def task_status(request, task_id):
 
 
 from django.http import JsonResponse
-from .tasks import capture_model_features_task
+from .tasks import capture_model_features_task, model_input_task
 
 # def capture_data_view(request):
 #     """
@@ -21,8 +21,12 @@ from .tasks import capture_model_features_task
 #     return JsonResponse({"status": "success", "task_id": task.id, "message": "Traffic capture started."})
 
 def predict(request):
-    res = model_input(request)
-    # res = model_input(request,'C:/Users/Bayram/Desktop/gazi/cicgit/capture_500.csv')
 
-    return JsonResponse(res,safe=False)
+    res = model_input_task.delay()
+    # res = model_input(request,'C:/Users/Bayram/Desktop/gazi/cicgit/capture_500.csv')
+    try:
+        return JsonResponse(res,safe=False)
+    except Exception as e:
+        return JsonResponse("No prediction",safe=False)
+        
     

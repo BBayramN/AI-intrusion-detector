@@ -5,7 +5,7 @@ from ai_intrusion_detector.settings import AI_MODEL,AI_SCALER
 scaler = joblib.load(AI_SCALER)
 model = joblib.load(AI_MODEL)
 
-def model_input(request):
+def model_input():
     file = '/app/data/csv/capture_10000.csv'
     df = pd.read_csv(file)
 
