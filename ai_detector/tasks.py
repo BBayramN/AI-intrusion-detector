@@ -42,10 +42,12 @@ def model_input_task(self):
 
 
 @shared_task(bind=True)
-def chained_attack_detection_task(self, packet_count=10000, bpf_filter="tcp port 80 or tcp port 443"):
+def chained_attack_detection_task(self):
     """
     Chain tasks to capture traffic, convert PCAP to CSV, and predict attacks.
     """
+    packet_count=10000
+    bpf_filter="tcp port 80 or tcp port 443"
     try:
         # Chain tasks
         task_chain = chain(
