@@ -2,8 +2,14 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'docker_services'
+  - job_name: 'django'
     static_configs:
       - targets:
-          - 'localhost:8000'  # Django servisini izleme
-          - 'redis:6379'      # Redis servisini izleme
+          - 'web:8000'  # Django uygulamasının endpoint’i
+
+  
+  - job_name: 'celery'
+    static_configs:
+      - targets:
+          - 'celery-exporter:8888'
+
