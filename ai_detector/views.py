@@ -21,7 +21,7 @@ from django.http import JsonResponse
 #     return JsonResponse({"status": "success", "task_id": task.id, "message": "Traffic capture started."})
 
 
-from .tasks import chained_attack_detection_task
+#from .tasks import chained_attack_detection_task
 
 
 
