@@ -9,11 +9,13 @@ def capture_model_features(interface="eth0", packet_count=10000):
     pcap_dir = "/app/data/captures"
     pcap_file = f"{pcap_dir}/capture_{packet_count}.pcap"
     os.makedirs(pcap_dir, exist_ok=True)
+    bpf_filter = "tcp port 80 or tcp port 443"
     
     # Use subprocess.run instead of os.system for better control
     tshark_cmd = [
         "tshark",
         "-i", interface,
+        "-f", bpf_filter,
         "-c", str(packet_count),
         "-w", pcap_file,
         "-F", "pcap"
