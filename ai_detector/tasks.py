@@ -3,7 +3,6 @@
 from celery import shared_task, chain
 from .utils import capture_model_features,convert_pcap_csv
 from .model_process import model_input
-import subprocess
 
 @shared_task(bind=True)
 def capture_model_features_task(self, packet_count=10000):

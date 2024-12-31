@@ -132,8 +132,9 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-AI_SCALER = os.path.join(BASE_DIR,'scaler2_model.pkl')
-AI_MODEL = os.path.join(BASE_DIR,'final_ai_model.joblib')
+AI_SCALER = os.path.join(BASE_DIR,'gen_scaler_model.pkl')
+AI_PCA = os.path.join(BASE_DIR,'pca_model.pkl')
+AI_MODEL = os.path.join(BASE_DIR,'svm_model.pkl')
 
 
 # settings.py
