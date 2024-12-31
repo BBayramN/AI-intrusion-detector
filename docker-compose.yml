@@ -51,16 +51,16 @@ services:
     networks:
       - monitoring
 
-  celery-exporter:
-    image: oliver006/celery-prometheus-exporter
-    ports:
-      - "8888:8888"  # Exporter’ın çalıştığı port
-    environment:
-      - CELERY_BROKER_URL=redis://localhost:6379/0
-    depends_on:
-      - redis
-    networks:
-      - monitoring
+  # celery-exporter:
+  #   image: oliver006/celery-prometheus-exporter
+  #   ports:
+  #     - "8888:8888"  # Exporter’ın çalıştığı port
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://localhost:6379/0
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - monitoring
 
   grafana:
     image: grafana/grafana:latest

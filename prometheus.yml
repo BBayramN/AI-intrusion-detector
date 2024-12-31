@@ -8,8 +8,8 @@ scrape_configs:
           - 'web:8000'  # Django uygulamasının endpoint’i
 
   
-  - job_name: 'celery'
-    static_configs:
-      - targets:
-          - 'celery-exporter:8888'
+  # - job_name: 'celery'
+  #   static_configs:
+  #     - targets:
+  #         - 'celery-exporter:8888'
 
