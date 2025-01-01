@@ -5,7 +5,7 @@ from subprocess import run, PIPE
 
 logger = logging.getLogger('ai_detector')
 
-def capture_model_features(interface="eth0", packet_count=10000):
+def capture_model_features(interface="any", packet_count=10000):
     pcap_dir = "/app/data/captures"
     pcap_file = f"{pcap_dir}/capture_{packet_count}.pcap"
     os.makedirs(pcap_dir, exist_ok=True)

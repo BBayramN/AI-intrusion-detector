@@ -5,7 +5,7 @@ scrape_configs:
   - job_name: 'django'
     static_configs:
       - targets:
-          - 'web:8000'  # Django uygulamasının endpoint’i
+          - '84.247.178.179:80'  # Django uygulamasının endpoint’i
 
   
   # - job_name: 'celery'
